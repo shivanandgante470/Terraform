@@ -14,3 +14,11 @@ output "location" {
 output "tags" {
     value = azurerm_resource_group.rg.tags
 }
+
+output "list_type" {
+    value = var.var_list_type
+}
+
+output "tagss" {
+  value = var.tags
+}

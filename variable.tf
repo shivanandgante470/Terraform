@@ -23,8 +23,13 @@ variable "location" {
 }
 
 variable "tags" {
-  default = {
-      department  = "account"
+    type = map
+    default = {
+      Environment = "Development"
+      department  = "Account"
   }
-  description = "Name of Tag"
+}
+variable "var_list_type" {
+  type = list(string)
+  default = ["Alph", "1", "Beta", "$"]
 }
