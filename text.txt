@@ -1,0 +1,161 @@
+# 1st Scenario
+================
+Main.tf
+
+provider "azurerm" {
+    
+    features {} 
+}
+
+resource "azurerm_resource_group" "rg"{
+    name = "example-rg"
+    location = "West Europe"
+
+}
+
+terraform init
+terraform validate
+terraform apply -auto-approve
+terraform destroy -auto-approve
+
+================================
+# 2nd Scenario
+
+format variable:-
+
+#format("%s-%s-%s-%s", var.org_name, var.project_name, var.environment_name, var.environment_instance)
+
+Main.tf
+========
+
+provider "azurerm" {
+    
+    features {} 
+}
+
+# format -- means its a another variable
+resource "azurerm_resource_group" "rg"{
+    name = format("%s-%s-%s-%s", var.org_name,var.project_name,var.environment_name,var.environment_instance)
+    location = var.location
+    tags = var.tags
+}
+
+variable.tf:-
+=============
+
+variable "org_name" {
+  default = "BEE"
+  description = "Name of Organization"
+}
+
+
+variable "project_name" {
+  default = "BEE-Sent"
+  type = string
+}
+
+variable "environment_name" {
+  default = "Dev"
+}
+
+variable "environment_instance" {
+  default = "01"
+}
+
+variable "location" {
+  default = "West Europe"
+}
+
+variable "tags" {
+  default = {
+      department  = "account"
+  }
+  description = "Name of Tag"
+}
+
+
+output.tf:-
+===========
+output "resource_name" {
+    value = azurerm_resource_group.rg.name
+}
+
+output "resource_id" {
+    value = azurerm_resource_group.rg.id 
+	# we will get the subscription id along with resource group name
+}
+
+output "location" {
+    value = azurerm_resource_group.rg.location
+  
+}
+
+output "tags" {
+    value = azurerm_resource_group.rg.tags
+}
+
+terraform init
+terraform validate
+terraform apply -auto-approve
+terraform destroy -auto-approve
+
+Apply complete! Resources: 1 added, 0 changed, 1 destroyed.
+
+Outputs:
+
+location = "westeurope"
+resource_id = "/subscriptions/aab27af1-dd0a-4969-a589-b136b76917cf/resourceGroups/BEE-BEE-Sent-Dev-01"
+resource_name = "BEE-BEE-Sent-Dev-01"
+tags = tomap({
+  "department" = "account"
+})
+
+
+==================
+3rd Scenario:-
+=================
+
+Use "locals" keyword
+
+No need to change variable.tf and output.tf files.
+
+main.tf:-
+=========
+
+provider "azurerm" {
+    features {} 
+}
+
+locals {
+  resource_group_name = format("%s-%s-%s-%s", var.org_name,var.project_name,var.environment_name,var.environment_instance)
+  #local.resource_group_name
+}
+
+# format -- means its a another variable
+resource "azurerm_resource_group" "rg"{
+    name = local.resource_group_name
+    location = var.location
+    tags = var.tags
+
+}
+
+
+terraform init
+terraform validate
+terraform apply -auto-approve
+terraform destroy -auto-approve
+
+Apply complete! Resources: 1 added, 0 changed, 1 destroyed.
+
+Outputs:
+
+location = "westeurope"
+resource_id = "/subscriptions/aab27af1-dd0a-4969-a589-b136b76917cf/resourceGroups/BEE-Org-BEE-Project-Dev-01"
+resource_name = "BEE-Org-BEE-Project-Dev-01"
+tags = tomap({
+  "department" = "account"
+})
+
+Note: Modified variable default values that is the reason out get changed compare to earlier output.
+
+Destroy complete! Resources: 1 destroyed.
