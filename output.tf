@@ -22,3 +22,17 @@ output "list_type" {
 output "tagss" {
   value = var.tags
 }
+
+output "req_approval" {
+    value = var.require_approval
+}
+
+output "number" {
+    value = var.number_var
+  
+}
+
+output "car_model" {
+value   = var.car_model
+  
+}
