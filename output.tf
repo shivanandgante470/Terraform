@@ -1,23 +1,23 @@
 output "local_resource_name" {
-    //value = azurerm_resource_group.rg.name
-    value   = local.resource_group_name
+  //value = azurerm_resource_group.rg.name
+  value = local.resource_group_name
 }
 
 output "resource_id" {
-    value = azurerm_resource_group.rg.id
+  value = azurerm_resource_group.rg.id
 }
 
 output "location" {
-    value = azurerm_resource_group.rg.location
-  
+  value = azurerm_resource_group.rg.location
+
 }
 
 output "tags" {
-    value = azurerm_resource_group.rg.tags
+  value = azurerm_resource_group.rg.tags
 }
 
 output "list_type" {
-    value = var.var_list_type
+  value = var.var_list_type
 }
 
 output "tagss" {
@@ -25,15 +25,36 @@ output "tagss" {
 }
 
 output "req_approval" {
-    value = var.require_approval
+  value = var.require_approval
 }
 
 output "number" {
-    value = var.number_var
-  
+  value = var.number_var
+
 }
 
 output "car_model" {
-value   = var.car_model
-  
+  value = var.car_model
+
+}
+
+
+locals {
+  hello       = format("Hello, %s!", "Sagar")
+  format_list = formatlist("Hello, %s!", ["A", "B"])
+  hello_title = title("hello world")
+  lookup_type = lookup({ a = "ay", b = "bee" }, "a", "what?")
+}
+
+output "hello_1" {
+  value = local.hello
+}
+output "format_1" {
+  value = local.format_list
+}
+output "title_1" {
+  value = local.hello_title
+}
+output "lookpu-type" {
+  value = local.lookup_type
 }
