@@ -1,0 +1,497 @@
+# 1st Scenario
+================
+Main.tf
+
+provider "azurerm" {
+    
+    features {} 
+}
+
+resource "azurerm_resource_group" "rg"{
+    name = "example-rg"
+    location = "West Europe"
+
+}
+
+terraform init
+terraform validate
+terraform apply -auto-approve
+terraform destroy -auto-approve
+
+================================
+# 2nd Scenario
+
+format variable:-
+
+#format("%s-%s-%s-%s", var.org_name, var.project_name, var.environment_name, var.environment_instance)
+
+# firewall_name= lower("fw-${var.region}-${var.business_unit}-${var.environment_short}-${var.fw-name}")
+
+Main.tf
+========
+
+provider "azurerm" {
+    
+    features {} 
+}
+
+# format -- means its a another variable
+resource "azurerm_resource_group" "rg"{
+    name = format("%s-%s-%s-%s", var.org_name,var.project_name,var.environment_name,var.environment_instance)
+    location = var.location
+    tags = var.tags
+}
+
+variable.tf:-
+=============
+
+variable "org_name" {
+  default = "BEE"
+  description = "Name of Organization"
+}
+
+
+variable "project_name" {
+  default = "BEE-Sent"
+  type = string
+}
+
+variable "environment_name" {
+  default = "Dev"
+}
+
+variable "environment_instance" {
+  default = "01"
+}
+
+variable "location" {
+  default = "West Europe"
+}
+
+variable "tags" {
+  default = {
+      department  = "account"
+  }
+  description = "Name of Tag"
+}
+
+
+output.tf:-
+===========
+output "resource_name" {
+    value = azurerm_resource_group.rg.name
+}
+
+output "resource_id" {
+    value = azurerm_resource_group.rg.id 
+	# we will get the subscription id along with resource group name
+}
+
+output "location" {
+    value = azurerm_resource_group.rg.location
+  
+}
+
+output "tags" {
+    value = azurerm_resource_group.rg.tags
+	
+}
+
+terraform init
+terraform validate
+terraform apply -auto-approve
+terraform destroy -auto-approve
+
+Apply complete! Resources: 1 added, 0 changed, 1 destroyed.
+
+Outputs:
+
+location = "westeurope"
+resource_id = "/subscriptions/aab27af1-dd0a-4969-a589-b136b76917cf/resourceGroups/BEE-BEE-Sent-Dev-01"
+resource_name = "BEE-BEE-Sent-Dev-01"
+tags = tomap({
+  "department" = "account"
+})
+
+
+==================
+3rd Scenario:-
+=================
+
+Use "locals" keyword
+
+No need to change variable.tf and output.tf files.
+
+main.tf:-
+=========
+
+provider "azurerm" {
+    features {} 
+}
+
+locals {
+  resource_group_name = format("%s-%s-%s-%s", var.org_name,var.project_name,var.environment_name,var.environment_instance)
+  #local.resource_group_name
+}
+
+# format -- means its a another variable
+resource "azurerm_resource_group" "rg"{
+    name = local.resource_group_name
+    location = var.location
+    tags = var.tags
+
+}
+
+
+terraform init
+terraform validate
+terraform apply -auto-approve
+terraform destroy -auto-approve
+
+Apply complete! Resources: 1 added, 0 changed, 1 destroyed.
+
+Outputs:
+
+location = "westeurope"
+resource_id = "/subscriptions/aab27af1-dd0a-4969-a589-b136b76917cf/resourceGroups/BEE-Org-BEE-Project-Dev-01"
+resource_name = "BEE-Org-BEE-Project-Dev-01"
+tags = tomap({
+  "department" = "account"
+})
+
+Note: Modified variable default values that is the reason out get changed compare to earlier output.
+
+Destroy complete! Resources: 1 destroyed.
+
+==============================================
+
+#3 -- Input Variable
+
+Dont make change main.tf file.
+
+variable.tf
+============
+
+variable "org_name" {
+  default = "BEE-Org"
+  description = "Name of Organization"
+}
+
+
+variable "project_name" {
+  default = "BEE-Project"
+  type = string
+}
+
+variable "environment_name" {
+  default = "Dev"
+}
+
+variable "environment_instance" {
+  default = "01"
+}
+
+variable "location" {
+  default = "West Europe"
+}
+
+variable "tags" {
+    type = map
+    default = {
+      Environment = "Development"
+      department  = "Account"
+  }
+}
+variable "var_list_type" {
+  type = list(string)
+  default = ["Alph", "1", "Beta", "$"]
+}
+
+variable "require_approval" {
+   type  = bool
+   default = false
+}
+
+variable "number_var" {
+  type  = number
+  default = 12345
+}
+
+variable "car_model" {
+	default	= {
+	  engine = {
+      "type" = "tuboboost"
+      "year"	= "2021"
+      "capacity" = "3000cc"
+	},
+	Range	= {
+	Start	= 10
+	End		= 200
+	},
+	maxSpeed	= 100,
+	milage	= "10/kmpl",
+	isThisSelfStart	= true,
+	availableModel 	= ["basic", "Automated", "Petrole", "G109"]
+  }
+}
+
+
+output.tf:-
+=============
+output "resource_name" {
+    value = azurerm_resource_group.rg.name
+}
+
+output "resource_id" {
+    value = azurerm_resource_group.rg.id
+}
+
+output "location" {
+    value = azurerm_resource_group.rg.location
+  
+}
+
+output "tags" {
+    value = azurerm_resource_group.rg.tags
+}
+
+output "list_type" {
+    value = var.var_list_type
+}
+
+output "tagss" {
+  value = var.tags
+}
+
+output "req_approval" {
+    value = var.require_approval
+}
+
+output "number" {
+    value = var.number_var
+  
+}
+
+output "car_model" {
+value   = var.car_model
+  
+}
+
+terraform init
+terraform validate
+terraform apply -auto-approve
+terraform destroy -auto-approve
+
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+car_model = {
+  "Range" = {
+    "End" = 200
+    "Start" = 10
+  }
+  "availableModel" = [
+    "basic",
+    "Automated",
+    "Petrole",
+    "G109",
+  ]
+  "engine" = {
+    "capacity" = "3000cc"
+    "type" = "tuboboost"
+    "year" = "2021"
+  }
+  "isThisSelfStart" = true
+  "maxSpeed" = 100
+  "milage" = "10/kmpl"
+}
+list_type = tolist([
+  "Alph",
+  "1",
+  "Beta",
+  "$",
+])
+location = "westeurope"
+number = 12345
+req_approval = false
+resource_id = "/subscriptions/aab27af1-dd0a-4969-a589-b136b76917cf/resourceGroups/BEE-Org-BEE-Project-Dev-01"
+resource_name = "BEE-Org-BEE-Project-Dev-01"
+tags = tomap({
+  "Environment" = "Development"
+  "department" = "Account"
+})
+tagss = tomap({
+  "Environment" = "Development"
+  "department" = "Account"
+})
+
+
+How to Pass the variable through apply command ?
+
+terraform apply -auto-approve -var 'org_name=capgemini' -var 'project_name=signal'
+output:-
+
+resource_id = "/subscriptions/aab27af1-dd0a-4969-a589-b136b76917cf/resourceGroups/capgemini-signal-Dev-01"
+resource_name = "capgemini-signal-Dev-01"
+tags = tomap({
+  "Environment" = "Development"
+  "department" = "Account"
+})
+
+
+How to paas the variable file throuh terraform command ?
+
+Create input tf variable file and pass the tf variable file.
+
+input.tfvars:-
+
+org_name        = "Google"
+project_name    = "Network-Signal"
+
+terraform plan  -var-file "input.tfvars" OR terraform plan  -var-file ".\input.tfvars"
+
+
+How to set up the environment variable ?
+
+variable.tf:-
+
+variable "location" {}
+
+
+$env:TF_VAR_location "west europe"
+
+terraform apply -auto-approve
+
+$env:TF_VAR_location "something"
+
+terraform apply -auto-approve
+
+=========================================================
+#4 Video --- https://www.youtube.com/watch?v=0kxPkbySQy0
+============================================================
+
+No need to change main.tf, variable.tf and input.tfvars file.
+
+output.tf:-
+
+output "local_resource_name" {
+  //value = azurerm_resource_group.rg.name
+  value = local.resource_group_name
+}
+
+output "resource_id" {
+  value = azurerm_resource_group.rg.id
+}
+
+output "location" {
+  value = azurerm_resource_group.rg.location
+
+}
+
+output "tags" {
+  value = azurerm_resource_group.rg.tags
+}
+
+output "list_type" {
+  value = var.var_list_type
+}
+
+output "tagss" {
+  value = var.tags
+}
+
+output "req_approval" {
+  value = var.require_approval
+}
+
+output "number" {
+  value = var.number_var
+
+}
+
+output "car_model" {
+  value = var.car_model
+
+}
+# Added few concepts
+
+locals {
+  hello       = format("Hello, %s!", "Sagar")
+  format_list = formatlist("Hello, %s!", ["A", "B"])
+  hello_title = title("hello world")
+  lookup_type = lookup({ a = "ay", b = "bee" }, "a", "what?")
+}
+
+output "hello_1" {
+  value = local.hello
+}
+output "format_1" {
+  value = local.format_list
+}
+output "title_1" {
+  value = local.hello_title
+}
+output "lookpu-type" {
+  value = local.lookup_type
+}
+
+Output:-
+
+terraform init
+terraform validate
+terraform apply -auto-approve
+terraform destroy -auto-approve
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+car_model = {
+  "Range" = {
+    "End" = 200
+    "Start" = 10
+  }
+  "availableModel" = [
+    "basic",
+    "Automated",
+    "Petrole",
+    "G109",
+  ]
+  "engine" = {
+    "capacity" = "3000cc"
+    "type" = "tuboboost"
+    "year" = "2021"
+  }
+  "isThisSelfStart" = true
+  "maxSpeed" = 100
+  "milage" = "10/kmpl"
+}
+format_1 = tolist([
+  "Hello, A!",
+  "Hello, B!",
+])
+hello_1 = "Hello, Sagar!"
+list_type = tolist([
+  "Alph",
+  "1",
+  "Beta",
+  "$",
+])
+local_resource_name = "BEE-Org-BEE-Project-Dev-01"
+location = "westeurope"
+lookpu-type = "ay"
+number = 12345
+req_approval = false
+resource_id = "/subscriptions/aab27af1-dd0a-4969-a589-b136b76917cf/resourceGroups/BEE-Org-BEE-Project-Dev-01"
+tags = tomap({
+  "Environment" = "Development"
+  "department" = "Account"
+})
+tagss = tomap({
+  "Environment" = "Development"
+  "department" = "Account"
+})
+title_1 = "Hello World"
+PS C:\Users\sgante\OneDrive - Capgemini\Desktop\Project-Lab\Iac-1\Iac>
