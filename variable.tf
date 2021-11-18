@@ -1,5 +1,6 @@
 
 variable "org_name" {
+  type    = string
   default     = "BEE-Org"
   description = "Name of Organization"
 }
